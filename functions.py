@@ -35,7 +35,3 @@ ip_list = ip_list = populate_ip_list('10.254.0.', range(1,34))
 get_ios_output(ip_list, 'sh ip int br')
 
 
-data = "xyz785abc5xy2"
-pattern = r'[abc][1-7]'
-match = re.search(pattern, data)
-print(match.group())
