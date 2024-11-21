@@ -9,4 +9,4 @@ mac_add = '000c.29e1.82c5'
 print(change_mac_notation.change_notation(mac_add, ':'))
 
 # convert EUI48 to EUI64
-print(eui48to64.convert(mac_list))
+print(eui48.convert(mac_list))
