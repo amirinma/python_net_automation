@@ -1,6 +1,7 @@
 import netmiko
 import pandas as pd
-
+from getpass import getpass 
+# the getpass fu work lik input(), but the characters that user types are not echoed to the terminal
 
 class ciscoIOS():
     """
@@ -8,7 +9,7 @@ class ciscoIOS():
     issue configuration commands
     """
 
-    def __init__(self, ip, username=None, password=None, 
+    def __init__(self, ip, prompt=False, username=None, password=None, 
                 port=22, device_type='cisco_ios'):
         """
         Establishes connection to target device.
@@ -19,6 +20,9 @@ class ciscoIOS():
         :param str password:        password for authentication
         :param str device_type:     should not change, class is designed for Cisco IOS
         """
+        if prompt:
+            username = input('Enter Username: ')
+            password = getpass('Enter Password:')
         self.conn = netmiko.ConnectHandler(ip=ip, port=port, username=username,
                     password=password, device_type=device_type)
         _ = self.conn.send_command('sh run | include hostname')
@@ -32,3 +36,27 @@ class ciscoIOS():
         df = pd.DataFrame(ip_int_br)
         interface_names = df['intf'].to_list()
         return interface_names
+
+    def get_run_int(self):
+        """
+        Returns output from sh run interface [interface-name]
+        User should type case-sensitive interface name when prompted
+        """
+        interface_name = input('Interface name: ')
+        if interface_name in self.get_interface_list():
+            return self.conn.send_command('sh run interface ' + interface_name) 
+        else: # if interface name is not included in the return interface list, still issue command and if now invalid input, return the output
+            output = self.conn.send_command('sh run interface ' + interface_name)
+            if 'Invalid input' not in output:
+                return output
+            else:
+                print('Error - Invalid interface name')
+
+def main():
+    csr = ciscoIOS('10.254.0.1', prompt=True)
+    print(csr.get_interface_list())
+    print(csr.get_run_int())
+# below if statement runs the main() function when this script runs via a method other than import.
+if __name__  == '__main__':
+    main()
+
